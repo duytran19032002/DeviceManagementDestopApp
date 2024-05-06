@@ -9,7 +9,9 @@ using LiveChartsCore.SkiaSharpView.Extensions;
 using LiveChartsCore.SkiaSharpView.Painting;
 using Newtonsoft.Json;
 using SkiaSharp;
+using System.Security.Cryptography;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels.Supervise
 {
@@ -29,9 +31,9 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         public double OperationTime1 { get; set; }
         public double Oee1 { get; set; }
 
-        public string Power1 { get; set; }
-        public string Speed1 { get; set; }
-        public string Vibration1 { get; set; }
+        public double Power1 { get; set; }
+        public double Speed1 { get; set; }
+        public double Vibration1 { get; set; }
 
         //Machine 2
         public DateTime? TimeStamp2 { get; set; }
@@ -39,9 +41,10 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         public double ShiftTime2 { get; set; }
         public double OperationTime2 { get; set; }
         public double Oee2 { get; set; }
-        public string Power2 { get; set; }
-        public string Speed2 { get; set; }
-        public string Vibration2 { get; set; }
+
+        public double Power2 { get; set; }
+        public double Speed2 { get; set; }
+        public double Vibration2 { get; set; }
 
         //Machine 3
         public DateTime? TimeStamp3 { get; set; }
@@ -49,9 +52,9 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         public double ShiftTime3 { get; set; }
         public double OperationTime3 { get; set; }
         public double Oee3 { get; set; }
-        public string Power3 { get; set; }
-        public string Speed3 { get; set; }
-        public string Vibration3 { get; set; }
+        public double Power3 { get; set; }
+        public double Speed3 { get; set; }
+        public double Vibration3 { get; set; }
 
         //Machine 4
         public DateTime? TimeStamp4 { get; set; }
@@ -59,9 +62,9 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         public double ShiftTime4 { get; set; }
         public double OperationTime4 { get; set; }
         public double Oee4 { get; set; }
-        public string Power4 { get; set; }
-        public string Speed4 { get; set; }
-        public string Vibration4 { get; set; }
+        public double Power4 { get; set; }
+        public double Speed4 { get; set; }
+        public double Vibration4 { get; set; }
 
 
         //Status Environment
@@ -89,7 +92,6 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                 OnPropertyChanged();
             }
         }
-
         //Chart environment
         public IEnumerable<ISeries> Series5 { get; set; }
         public IEnumerable<ISeries> Series6 { get; set; }
@@ -104,6 +106,9 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         public ICommand LoadFablabSuperviseViewCommand { get; set; }
         public ICommand NextViewCommand { get; set; }
         public ICommand PreviusViewCommand { get; set; }
+        //enable button change view
+        public bool IsFisrtView { get; set; }
+        public bool IsLastView { get; set; }
         public FablabSuperviseViewModel(ISignalRClient signalRClient)
         {
             _signalRClient = signalRClient;
@@ -113,19 +118,110 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
             LoadFablabSuperviseViewCommand = new RelayCommand(LoadFablabSuperviseView);
             NextViewCommand = new RelayCommand(NextView);
             PreviusViewCommand = new RelayCommand(PreviusView);
-
             ColorHumidity = "White";
             ColorTemperature = "White";
             ColorGas = "White";
             ColorNoise = "White";
+    
             UpdateView(0);
         }
 
         private void SignalRClient_DataMachineChanged(string json)
         {
             var tag = JsonConvert.DeserializeObject<DataMachineChangedNotification>(json);
-        }
+            if (tag != null)
+            {
+                switch (tag.machineId)
+                {
+                    case "KB36":
+                        {
+                            switch (tag.name)
+                            {
+                                case "Power":
+                                    {
+                                        Power1 = Convert.ToDouble(tag.value); break;
+                                    }
+                                case "Speed":
+                                    {
+                                        Speed1 = Convert.ToDouble(tag.value); break;
+                                    }
+                                case "Vibration":
+                                    {
+                                        Vibration1 = Convert.ToDouble(tag.value); break;
+                                    }
+                                default: break;
+                                
+                            }
+                            break;
+                        }
+                    case "TSH1390":
+                        {
+                            switch (tag.name)
+                            {
+                                case "Power":
+                                    {
+                                        Power2 = Convert.ToDouble(tag.value); break;
+                                    }
+                                case "Speed":
+                                    {
+                                        Speed2 = Convert.ToDouble(tag.value); break;
+                                    }
+                                case "Vibration":
+                                    {
+                                        Vibration2 = Convert.ToDouble(tag.value); break;
+                                    }
+                                default: break;
 
+                            }
+                            break;
+                        }
+                    case "ERL1330":
+                        {
+                            switch (tag.name)
+                            {
+                                case "Power":
+                                    {
+                                        Power3 = Convert.ToDouble(tag.value); break;
+                                    }
+                                case "Speed":
+                                    {
+                                        Speed3 = Convert.ToDouble(tag.value); break;
+                                    }
+                                case "Vibration":
+                                    {
+                                        Vibration3 = Convert.ToDouble(tag.value); break;
+                                    }
+                                default: break;
+
+                            }
+                            break;
+                        }
+                    case "FRD900S":
+                        {
+                            switch (tag.name)
+                            {
+                                case "Power":
+                                    {
+                                        Power4 = Convert.ToDouble(tag.value); break;
+                                    }
+                                case "Speed":
+                                    {
+                                        Speed4 = Convert.ToDouble(tag.value); break;
+                                    }
+                                case "Vibration":
+                                    {
+                                        Vibration4 = Convert.ToDouble(tag.value); break;
+                                    }
+                                default: break;
+
+                            }
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+        }
         private void SignalRClient_EnvironmentChanged(string json)
         {
             var tag = JsonConvert.DeserializeObject<EnvironmentChangedNotification>(json);
@@ -162,8 +258,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                         break;
                 }
             }
-        }
-
+        }     
         private async void SignalRClient_OnTagChanged(string json)
         {
             Task read = new(() =>
@@ -181,6 +276,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                                 ShiftTime1 = Convert.ToDouble(tag.ShiftTime)/60;
                                 OperationTime1 = Convert.ToDouble(tag.OperationTime)/60;
                                 Oee1 = Convert.ToDouble(tag.Oee);
+                                UpdateValueOEEMachine1(IdleTime1, ShiftTime1, OperationTime1, Oee1);
                                 break;
                             }
 
@@ -191,6 +287,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                                 ShiftTime2 = Convert.ToDouble(tag.ShiftTime);
                                 OperationTime2 = Convert.ToDouble(tag.OperationTime);
                                 Oee2 = Convert.ToDouble(tag.Oee);
+                                UpdateValueOEEMachine2(IdleTime2, ShiftTime2, OperationTime2, Oee2);
                                 break;
                             }
                         case "machine3":
@@ -200,6 +297,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                                 ShiftTime3 = Convert.ToDouble(tag.ShiftTime);
                                 OperationTime3 = Convert.ToDouble(tag.OperationTime);
                                 Oee3 = Convert.ToDouble(tag.Oee);
+                                UpdateValueOEEMachine3(IdleTime3, ShiftTime3, OperationTime3, Oee3);
                                 break;
                             }
                         case "machine4":
@@ -209,6 +307,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                                 ShiftTime4 = Convert.ToDouble(tag.ShiftTime);
                                 OperationTime4 = Convert.ToDouble(tag.OperationTime);
                                 Oee4 = Convert.ToDouble(tag.Oee);
+                                UpdateValueOEEMachine4(IdleTime4, ShiftTime4, OperationTime4, Oee4);
                                 break;
                             }
 
@@ -224,20 +323,27 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
 
         }
 
+        //update chart
+        #region update value chart
         private async void UpdateValueOEEMachine1(double IdleTime, double ShiftTime, double OperationTime, double Oee)
         {
             Task Update = new(() =>
             {
-               
+                var A = Math.Round(IdleTime / ShiftTime, 3);
+                var P = Math.Round(OperationTime / IdleTime, 3);
+                Oee = Math.Round(Oee, 5);
+
                 Series = GaugeGenerator.BuildSolidGauge(
-                new GaugeItem(IdleTime, series => SetStyle("IdleTime", series)),
-                new GaugeItem(ShiftTime, series => SetStyle("ShiftTime", series)),
-                new GaugeItem(OperationTime, series => SetStyle("OperationTime", series)),
+                new GaugeItem(1, series => SetStyle("Q", series)),
+                new GaugeItem(P, series => SetStyle("P", series)),
+                new GaugeItem(A, series => SetStyle("A", series)),           
                 new GaugeItem(Oee, series => SetStyle("OEE", series)),
                 new GaugeItem(GaugeItem.Background, series =>
                 {
                     series.DataLabelsSize = 30;
                     series.InnerRadius = 20;
+                    //series.InnerColor = Color.FromArgb();
+                    
                 }));
             });
             Update.Start();
@@ -247,11 +353,14 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         {
             Task Update = new(() =>
             {
+                var A = Math.Round(IdleTime / ShiftTime, 3);
+                var P = Math.Round(OperationTime / IdleTime, 3);
+                Oee = Math.Round(Oee, 5);
 
                 Series1 = GaugeGenerator.BuildSolidGauge(
-                new GaugeItem(IdleTime, series => SetStyle("IdleTime", series)),
-                new GaugeItem(ShiftTime, series => SetStyle("ShiftTime", series)),
-                new GaugeItem(OperationTime, series => SetStyle("OperationTime", series)),
+                new GaugeItem(1, series => SetStyle("Q", series)),
+                new GaugeItem(P, series => SetStyle("P", series)),
+                new GaugeItem(A, series => SetStyle("A", series)),
                 new GaugeItem(Oee, series => SetStyle("OEE", series)),
                 new GaugeItem(GaugeItem.Background, series =>
                 {
@@ -266,11 +375,14 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         {
             Task Update = new(() =>
             {
+                var A = Math.Round(IdleTime / ShiftTime, 3);
+                var P = Math.Round(OperationTime / IdleTime, 3);
+                Oee = Math.Round(Oee, 5);
 
                 Series2 = GaugeGenerator.BuildSolidGauge(
-                new GaugeItem(IdleTime, series => SetStyle("IdleTime", series)),
-                new GaugeItem(ShiftTime, series => SetStyle("ShiftTime", series)),
-                new GaugeItem(OperationTime, series => SetStyle("OperationTime", series)),
+                new GaugeItem(1, series => SetStyle("Q", series)),
+                new GaugeItem(P, series => SetStyle("P", series)),
+                new GaugeItem(A, series => SetStyle("A", series)),
                 new GaugeItem(Oee, series => SetStyle("OEE", series)),
                 new GaugeItem(GaugeItem.Background, series =>
                 {
@@ -288,10 +400,11 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                 SolidColorPaint solidColorPaint = new SolidColorPaint();
                 if (humidity <= 90 && humidity >= 80)
                 {
-                    solidColorPaint = new SolidColorPaint(SKColors.Green);
+                    solidColorPaint = new SolidColorPaint(SKColors.YellowGreen);
                 }
                 else if (humidity > 90) solidColorPaint = new SolidColorPaint(SKColors.Red);
                 else solidColorPaint = new SolidColorPaint(SKColors.Yellow);
+
 
                 Series5 = GaugeGenerator.BuildSolidGauge(
              new GaugeItem(Convert.ToDouble(humidity), series =>
@@ -301,6 +414,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                  series.DataLabelsPaint = solidColorPaint;
                  series.DataLabelsPosition = PolarLabelsPosition.ChartCenter;
                  series.InnerRadius = 75;
+
              }),
              new GaugeItem(GaugeItem.Background, series =>
              {
@@ -318,7 +432,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                 SolidColorPaint solidColorPaint = new SolidColorPaint();
                 if (temperature <= 30 && temperature >= 25)
                 {
-                    solidColorPaint = new SolidColorPaint(SKColors.Green);
+                    solidColorPaint = new SolidColorPaint(SKColors.YellowGreen);
                 }
                 else if (temperature > 30) solidColorPaint = new SolidColorPaint(SKColors.Red);
                 else solidColorPaint = new SolidColorPaint(SKColors.Yellow);
@@ -348,7 +462,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                 SolidColorPaint solidColorPaint = new SolidColorPaint();
                 if (gas <= 90 && gas >= 80)
                 {
-                    solidColorPaint = new SolidColorPaint(SKColors.Green);
+                    solidColorPaint = new SolidColorPaint(SKColors.YellowGreen);
                 }
                 else if (gas > 90) solidColorPaint = new SolidColorPaint(SKColors.Red);
                 else solidColorPaint = new SolidColorPaint(SKColors.Yellow);
@@ -371,7 +485,6 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
             Update.Start();
             await Update;
         }
-
         private async void UpdateValueNoise(double noise)
         {
             Task Update = new(() =>
@@ -379,7 +492,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                 SolidColorPaint solidColorPaint = new SolidColorPaint();
                 if (noise <= 90 && noise >= 80)
                 {
-                    solidColorPaint = new SolidColorPaint(SKColors.Green);
+                    solidColorPaint = new SolidColorPaint(SKColors.YellowGreen);
                 }
                 else if (noise > 90) solidColorPaint = new SolidColorPaint(SKColors.Red);
                 else solidColorPaint = new SolidColorPaint(SKColors.Yellow);
@@ -406,11 +519,14 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         {
             Task Update = new(() =>
             {
+                var A = Math.Round(IdleTime / ShiftTime, 3);
+                var P = Math.Round(OperationTime / IdleTime, 3);
+                Oee = Math.Round(Oee, 5);
 
                 Series3 = GaugeGenerator.BuildSolidGauge(
-                new GaugeItem(IdleTime, series => SetStyle("IdleTime", series)),
-                new GaugeItem(ShiftTime, series => SetStyle("ShiftTime", series)),
-                new GaugeItem(OperationTime, series => SetStyle("OperationTime", series)),
+                new GaugeItem(1, series => SetStyle("Q", series)),
+                new GaugeItem(P, series => SetStyle("P", series)),
+                new GaugeItem(A, series => SetStyle("A", series)),
                 new GaugeItem(Oee, series => SetStyle("OEE", series)),
                 new GaugeItem(GaugeItem.Background, series =>
                 {
@@ -421,67 +537,151 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
             Update.Start();
             await Update;
         }
+        #endregion update value chart
+        //
 
         private async void LoadFablabSuperviseView()
         {
             IsBusy = true;
-            await UpdateOee();
-            await UpdateValueEnvironment();
+            await Task.WhenAll( 
+                UpdateValueEnvironment(),
+                UpdateOee(),
+                UpdateDataMachine());
             IsBusy = false;
         }
 
+        private async Task UpdateDataMachine()
+        {
+            var tags = await _signalRClient.GetBufferMachineDataList();
+            var Machine1 = (from tag in tags where tag.machineId == "KB36" select tag).ToList();
+            var Machine2 = (from tag in tags where tag.machineId == "TSH1390" select tag).ToList();
+            var Machine3 = (from tag in tags where tag.machineId == "ERL1330" select tag).ToList();
+            var Machine4 = (from tag in tags where tag.machineId == "FRD900S" select tag).ToList();
+
+            if (Machine1 != null)
+            {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                Power1 = Convert.ToDouble(Machine1.LastOrDefault(i => i.name == "Power").value);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                Speed1 = Convert.ToDouble(Machine1.LastOrDefault(i => i.name == "Speed").value);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                Vibration1 = Convert.ToDouble(Machine1.LastOrDefault(i => i.name == "Vibration").value);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+            }
+
+            if (Machine2 != null)
+            {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                Power2 = Convert.ToDouble(Machine2.LastOrDefault(i => i.name == "Power").value);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                Speed2 = Convert.ToDouble(Machine2.LastOrDefault(i => i.name == "Speed").value);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                Vibration2 = Convert.ToDouble(Machine2.LastOrDefault(i => i.name == "Vibration").value);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+            }
+
+            if (Machine3 != null)
+            {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                Power3 = Convert.ToDouble(Machine3.LastOrDefault(i => i.name == "Power").value);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                Speed3 = Convert.ToDouble(Machine3.LastOrDefault(i => i.name == "Speed").value);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                Vibration3 = Convert.ToDouble(Machine3.LastOrDefault(i => i.name == "Vibration").value);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+            }
+
+            if (Machine4 != null)
+            {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                Power4 = Convert.ToDouble(Machine4.LastOrDefault(i => i.name == "Power").value);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                Speed4 = Convert.ToDouble(Machine4.LastOrDefault(i => i.name == "Speed").value);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                Vibration4 = Convert.ToDouble(Machine4.LastOrDefault(i => i.name == "Vibration").value);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+            }
+
+        }
         private async Task UpdateOee()
         {
-            if (_signalRClient != null)
-            {
-                //Machine 1
-                TimeStamp1 = DateTime.TryParse(Convert.ToString((await _signalRClient.GetBufferTimeStamp("KB36"))), out var span) ? span : default;
-                IdleTime1 = Convert.ToDouble(await _signalRClient.GetBufferIdleTime("KB36"))/60;
-                ShiftTime1 = Convert.ToDouble(await _signalRClient.GetBufferShiftTime("KB36")) / 60;
-                OperationTime1 = Convert.ToDouble(await _signalRClient.GetBufferOperationTime("KB36"))/60;
-                Oee1 = Convert.ToDouble(await _signalRClient.GetBufferOee("KB36"));
+            var tags = await _signalRClient.GetBufferList();
+
+            var Machine1 = tags.LastOrDefault(i => i.DeviceId == "KB36");
+            var Machine2 = tags.LastOrDefault(i => i.DeviceId == "TSH1390");
+            var Machine3 = tags.LastOrDefault(i => i.DeviceId == "ERL1330");
+            var Machine4 = tags.LastOrDefault(i => i.DeviceId == "FRD900S");
+
+            if(Machine1 != null)
+            {               
+                IdleTime1 = Convert.ToDouble(Machine1.IdleTime) / 60;
+                ShiftTime1 = Convert.ToDouble(Machine1.ShiftTime) / 60;
+                OperationTime1 = Convert.ToDouble(Machine1.OperationTime) / 60;
+                Oee1 = Convert.ToDouble(Machine1.Oee);
                 UpdateValueOEEMachine1(IdleTime1, ShiftTime1, OperationTime1, Oee1);
-
-                ////Machine 2
-                TimeStamp2 = DateTime.TryParse(Convert.ToString((await _signalRClient.GetBufferTimeStamp("TSH1390"))), out var span2) ? span2 : default;
-                IdleTime2 = Convert.ToDouble(await _signalRClient.GetBufferIdleTime("TSH1390"));
-                ShiftTime2 = Convert.ToDouble(await _signalRClient.GetBufferShiftTime("TSH1390"));
-                OperationTime2 = Convert.ToDouble(await _signalRClient.GetBufferOperationTime("machTSH1390ine2"));
-                Oee2 = Convert.ToDouble(await _signalRClient.GetBufferOee("TSH1390"));
+            }
+            if (Machine2 != null)
+            {
+                IdleTime2 = Convert.ToDouble(Machine2.IdleTime) / 60;
+                ShiftTime2 = Convert.ToDouble(Machine2.ShiftTime) / 60;
+                OperationTime2 = Convert.ToDouble(Machine2.OperationTime) / 60;
+                Oee2 = Convert.ToDouble(Machine2.Oee);
                 UpdateValueOEEMachine2(IdleTime2, ShiftTime2, OperationTime2, Oee2);
-
-                ////Machine 3
-                TimeStamp3 = DateTime.TryParse(Convert.ToString((await _signalRClient.GetBufferTimeStamp("ERL1330"))), out var span3) ? span3 : default;
-                IdleTime3 = Convert.ToDouble(await _signalRClient.GetBufferIdleTime("ERL1330"));
-                ShiftTime3 = Convert.ToDouble(await _signalRClient.GetBufferShiftTime("ERL1330"));
-                OperationTime3 = Convert.ToDouble(await _signalRClient.GetBufferOperationTime("ERL1330"));
-                Oee3 = Convert.ToDouble(await _signalRClient.GetBufferOee("ERL1330"));
+            }
+            if (Machine3 != null)
+            {
+                IdleTime3 = Convert.ToDouble(Machine3.IdleTime) / 60;
+                ShiftTime3 = Convert.ToDouble(Machine3.ShiftTime) / 60;
+                OperationTime3 = Convert.ToDouble(Machine3.OperationTime) / 60;
+                Oee3 = Convert.ToDouble(Machine3.Oee);
                 UpdateValueOEEMachine3(IdleTime3, ShiftTime3, OperationTime3, Oee3);
 
-
-                ////Machine 4
-                TimeStamp4 = DateTime.TryParse(Convert.ToString((await _signalRClient.GetBufferTimeStamp("FRD900S"))), out var span4) ? span4 : default;
-                IdleTime4 = Convert.ToDouble(await _signalRClient.GetBufferIdleTime("FRD900S"));
-                ShiftTime4 = Convert.ToDouble(await _signalRClient.GetBufferShiftTime("FRD900S"));
-                OperationTime4 = Convert.ToDouble(await _signalRClient.GetBufferOperationTime("FRD900S"));
-                Oee4 = Convert.ToDouble(await _signalRClient.GetBufferOee("FRD900S"));
-                UpdateValueOEEMachine4(IdleTime4, ShiftTime4, OperationTime4, Oee4);
-
-
             }
+            if (Machine4 != null)
+            {
+                IdleTime4 = Convert.ToDouble(Machine4.IdleTime) / 60;
+                ShiftTime4 = Convert.ToDouble(Machine4.ShiftTime) / 60;
+                OperationTime4 = Convert.ToDouble(Machine4.OperationTime) / 60;
+                Oee4 = Convert.ToDouble(Machine4.Oee);
+                UpdateValueOEEMachine4(IdleTime4, ShiftTime4, OperationTime4, Oee4);
+            }
+            
         }
         private async Task UpdateValueEnvironment()
         {
-           
-            if (_signalRClient != null)
+            var tags = await _signalRClient.GetBufferEnvironmentList();
+
+            var _humidity = tags.LastOrDefault(i => i.Name == "Humidity");
+            var _temperature = tags.LastOrDefault(i => i.Name == "Humidity");
+            var _gas = tags.LastOrDefault(i => i.Name == "Humidity");
+            var _noise = tags.LastOrDefault(i => i.Name == "Humidity");
+
+            if (_humidity is not null)
             {
-                Humidity = Convert.ToInt64(await _signalRClient.GetBufferValue("Humidity"));               
+                Humidity = Convert.ToInt64(_humidity.Value);
                 UpdateValueHumidity(Humidity);
-                Temperature = Convert.ToInt64(await _signalRClient.GetBufferValue("Tempurature"));
+            }
+            if (_temperature is not null)
+            {
+                Temperature = Convert.ToInt64(_temperature.Value);
                 UpdateValueTemperature(Temperature);
-                Gas = Convert.ToInt64(await _signalRClient.GetBufferValue("Gas"));
+            }
+            if (_gas is not null)
+            {
+                Gas = Convert.ToInt64(_gas.Value);
                 UpdateValueGas(Gas);
-                Noise = Convert.ToInt64(await _signalRClient.GetBufferValue("Noise"));
+            }
+            if (_noise is not null)
+            {
+                Noise = Convert.ToInt64(_noise.Value); 
                 UpdateValueNoise(Noise);
             }
         }
@@ -493,9 +693,12 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
             series.DataLabelsFormatter =
                     point => $"{point.Context.Series.Name}: {point.Coordinate.PrimaryValue}";
             series.InnerRadius = 20;
-            series.RelativeOuterRadius = 20;
-            series.RelativeInnerRadius = 20;
+            series.RelativeOuterRadius = 3;
+            series.RelativeInnerRadius = 3;
         }
+        
+
+
 
         private void NextView()
         {
@@ -525,6 +728,8 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                         OpenViewMachineTSH1390 = "Hidden";
                         OpenViewMachineERL1330 = "Hidden";
                         OpenViewMachineFRD900S = "Hidden";
+                        IsFisrtView = true;
+                        IsLastView = false;
                         break;
                     }
                 case 1:
@@ -533,6 +738,8 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                         OpenViewMachineTSH1390 = "Visible";
                         OpenViewMachineERL1330 = "Hidden";
                         OpenViewMachineFRD900S = "Hidden";
+                        IsFisrtView = true;
+                        IsLastView = true;
                         break;
                     }
                 case 2:
@@ -541,6 +748,8 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                         OpenViewMachineTSH1390 = "Hidden";
                         OpenViewMachineERL1330 = "Visible";
                         OpenViewMachineFRD900S = "Hidden";
+                        IsFisrtView = true;
+                        IsLastView = true;
                         break;
                     }
                 case 3:
@@ -549,10 +758,14 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                         OpenViewMachineTSH1390 = "Hidden";
                         OpenViewMachineERL1330 = "Hidden";
                         OpenViewMachineFRD900S = "Visible";
+                        IsFisrtView = false;
+                        IsLastView = true;
                         break;
                     }
 
             }
+
+            
         }
 
     }

@@ -40,6 +40,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
 
         public bool IsOpenCreateView { get; set; }
         public bool IsOpenFixView { get; set; }
+        public bool IsOpenMoreDetailView { get; set; }
         //Thong so
         public ObservableCollection<SpecificationEquimentType> SpecificationEquimentTypes { get; set; } = new();
         //Hinh anh
@@ -67,9 +68,6 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                     NewDescription = SelectedItem.Description;
                     NewSpecificationEquimentTypes = SelectedItem.SpecificationEquimentTypes;
                     NewTagStr = string.Join("", SelectedItem.Tags.Select(s => $"#{s}"));
-
-
-
                 }
             }
         }
@@ -156,6 +154,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         public ICommand AddTagCommand { get; set; }
         public ICommand OpenSearchAdvanceViewCommand { get; set; }
         public ICommand CLoseSearchAdvanceViewCommand { get; set; }
+        public ICommand CLoseMoreDetailViewCommand { get; set; }
 
 
         public EquipmentTypeViewModel(IApiService apiService, IMapper mapper, EquipmentTypeStore equipmentTypeStore)
@@ -180,29 +179,19 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
             OpenCreateViewCommand = new RelayCommand(OpenCreateView);
             CloseCreateViewCommand = new RelayCommand(CloseCreateView);
             CloseFixViewCommand = new RelayCommand(CloseFixView);
-            //SaveCommand = new RelayCommand(SaveAsync);
+            SaveCommand = new RelayCommand(SaveAsync);
             AddTagCommand = new RelayCommand(AddTag);
             OpenSearchAdvanceViewCommand = new RelayCommand(OpenSearchView);
             CLoseSearchAdvanceViewCommand = new RelayCommand(CloseSearchView);
+            CLoseMoreDetailViewCommand = new RelayCommand(CloseMoreDetailView);
             IsOpenCreateView = false;
             IsOpenFixView = false;
             IsOpenSearchAdvanceView = false;
             apiService.StartLoading += ApiService_StartLoading;
             apiService.FinishLoading += ApiService_FinishLoading;
-            apiService.StartCreateEquipment += ApiService_StartCreateEquipment;
-            apiService.FinishCreateEquipment += ApiService_FinishCreateEquipment;
-            
+           
         }
 
-        private void ApiService_FinishCreateEquipment()
-        {
-            IsBusyCreate = false;
-        }
-
-        private void ApiService_StartCreateEquipment()
-        {
-            IsBusyCreate = true;
-        }
 
         private void ApiService_FinishLoading()
         {
@@ -259,6 +248,8 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                 }
             }
         }
+
+        //Open and Close View Popup
         private void CloseFixView()
         {
             IsOpenFixView = false;
@@ -279,7 +270,6 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
             IsOpenCreateView = false;
         }
 
-
         private void OpenSearchView()
         {
             IsOpenSearchAdvanceView = true;
@@ -288,6 +278,24 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         {
             IsOpenSearchAdvanceView = false;
         }
+        private void Entry_IsOpenMoreDetailView()
+        {
+            IsOpenMoreDetailView = true;
+            LoadDetail();
+        }
+        private void CloseMoreDetailView()
+        {
+            IsOpenMoreDetailView = false;
+        }
+
+        //Open fix view
+        private void Entry_IsOpenFixView()
+        {
+            IsOpenFixView = true;        
+        }
+
+        //
+
         private async void LoadInitial()
         {
 
@@ -318,6 +326,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                         entry.Updated += LoadInitial;
                         entry.OnException += Error;
                         entry.IsOpenFixView += Entry_IsOpenFixView;
+                        entry.IsOpenMoreDetailView += Entry_IsOpenMoreDetailView;
 
 
                     }
@@ -329,15 +338,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
             }
         }
 
-        //Open fix view
-        private void Entry_IsOpenFixView()
-        {
-            IsOpenFixView = true;
-            LoadDetail();
-        }
-
        
-
         private async void SearchEquipmentType()
         {
             if (!String.IsNullOrEmpty(SearchKeyWord))
@@ -429,7 +430,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Multiselect = true;
-            openFileDialog.Filter = "Image files|*.bmp;*.jpg;*.png";
+            openFileDialog.Filter = "Image files|*.bmp;*.jpg;*.png;*.webp";
             openFileDialog.FilterIndex = 1;
             int index = 0;
             if (openFileDialog.ShowDialog() == DialogResult.OK)
@@ -459,11 +460,20 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         private void DeleteImage(ImageEquimentType obj)
         {
             ImageEquimentTypes.Remove(obj);
+            var index = 0;
+            foreach (var item in ImageEquimentTypes)
+            {
+                item.ImageName = "Picture " + $"{index}";
+                index++;
+                OnPropertyChanged();
+            }
         }
 
 
         public void AddSpec()
         {
+            
+
             if (!String.IsNullOrEmpty(NewName) || !String.IsNullOrEmpty(NewUnit) || !String.IsNullOrEmpty(NewValue))
             {
                 NewSpecificationEquimentTypes.Add(new SpecificationEquimentType()
@@ -510,19 +520,24 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
 
                     try
                     {
+                        IsBusyCreate = true;
                         await _apiService.CreateEquipmentType(createDto);
+                        IsBusyCreate = false;
                         LoadEquipmentTypeView();
                     }
                     catch (HttpRequestException)
                     {
+                        IsBusyCreate = false;
                         ShowErrorMessage("Đã có lỗi xảy ra: Mất kết nối với server.");
+                        
                     }
                     catch (DuplicateEntityException)
-                    {
+                    {   IsBusyCreate = false;
                         ShowErrorMessage("Đã có lỗi xảy ra: Mã vật tư đã tồn tại.");
                     }
                     catch (Exception)
                     {
+                        IsBusyCreate = false;
                         ShowErrorMessage("Đã có lỗi xảy ra: Không thể tạo vật tư mới.");
                     }
                     MessageBox.Show("Đã Cập Nhật", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -530,6 +545,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                     NewEquipmentTypeId = "";
                     NewEquipmentTypeName = "";
                     NewDescription = "";
+                    TagId = "";
                     IsOpenCreateView = false;
                 }
                 else MessageBox.Show("Vui lòng chọn lĩnh vực!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -556,31 +572,35 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                 ShowErrorMessage("Đã có lỗi xảy ra: Mất kết nối với server.");
             }
         }
-        //private async void SaveAsync()
-        //{
+        private async void SaveAsync()
+        {
+            NewTag = TagId.Split("#").Skip(1).ToArray();
 
-        //    EquipmentTypeDto fixdto = new EquipmentTypeDto(NewEquipmentTypeId, NewEquipmentTypeName, NewDescription, NewCategory);
-        //    if (_mapper is not null && _apiService is not null)
-        //    {
-        //        try
-        //        {
-        //            await _apiService.FixEquipmentTypesAsync(fixdto);
-        //            MessageBox.Show("Đã Cập Nhật", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-        //            LoadEquipmentTypeView();
-        //        }
-        //        catch (HttpRequestException)
-        //        {
+            EquipmentTypeDto fixdto = new EquipmentTypeDto(NewEquipmentTypeId, NewEquipmentTypeName, NewDescription, NewCategory,NewTag);
+            if (_mapper is not null && _apiService is not null)
+            {
+                try
+                {
                     
-        //            ShowErrorMessage("Đã có lỗi xảy ra: Mất kết nối với server.");
-        //        }
-        //    }
-        //    NewEquipmentTypeId = "";
-        //    NewEquipmentTypeName = "";
-        //    NewDescription = "";
-        //    NewCategory = ECategory.All;
+                    await _apiService.FixEquipmentTypesAsync(fixdto);
+                    MessageBox.Show("Đã Cập Nhật", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    IsOpenFixView = false;
+                    LoadEquipmentTypeView();
+                }
+                catch (HttpRequestException)
+                {
+
+                    ShowErrorMessage("Đã có lỗi xảy ra: Mất kết nối với server.");
+                }
+            }
+            NewEquipmentTypeId = "";
+            NewEquipmentTypeName = "";
+            NewDescription = "";
+            TagId = "";
+            NewCategory = ECategory.All;
 
 
-        //}
+        }
         public BitmapImage Base64toImage(string Base64)
         {
             byte[] binarydata = Convert.FromBase64String(Base64);
