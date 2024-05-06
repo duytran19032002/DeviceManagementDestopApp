@@ -44,7 +44,7 @@ Style="{StaticResource TabControlLogoStyle}">
 
                 <TabItem IsEnabled="False"
   Style="{StaticResource TabItemStyle}"
-  Background="Pink"
+  Background="DarkBlue"
   Height="50">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -140,7 +140,7 @@ Style="{StaticResource TabControlLogoStyle}">
 
                 <TabItem IsEnabled="False"
   Style="{StaticResource TabItemStyle}"
-  Background="Pink"
+  Background="DarkBlue"
   Height="50">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
