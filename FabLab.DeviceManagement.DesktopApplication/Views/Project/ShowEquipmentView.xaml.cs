@@ -1,5 +1,4 @@
-﻿using FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,17 +16,13 @@ using System.Windows.Shapes;
 namespace FabLab.DeviceManagement.DesktopApplication.Views.Project
 {
     /// <summary>
-    /// Interaction logic for CreateNewProjectView.xaml
+    /// Interaction logic for ShowEquipmentView.xaml
     /// </summary>
-    public partial class CreateNewProjectView : UserControl
+    public partial class ShowEquipmentView : UserControl
     {
-       
-        public CreateNewProjectView()
+        public ShowEquipmentView()
         {
             InitializeComponent();
-           
         }
-
-      
     }
 }

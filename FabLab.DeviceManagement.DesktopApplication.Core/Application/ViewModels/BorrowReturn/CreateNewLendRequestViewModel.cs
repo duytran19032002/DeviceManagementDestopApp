@@ -35,7 +35,8 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         public IEnumerable<ProjectDto> ProjectsFilter { get; set; }
         public IEnumerable<BorrowDto> Borrows { get; set; }
         public bool Approved { get; set; }
-
+        public string NotificationNull { get; set; } = "";
+            
         //Create Borrow
         public string BorrowId { get; set; }
         public DateTime BorrowedDate { get; set; } = DateTime.Now;
@@ -150,8 +151,12 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                             MessageBox.Show("Dự án chưa được duyệt!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                             Approved = false;
                         }
+                        NotificationNull = "";
                     }
-                    else MessageBox.Show("Dự án chưa đăng kí thiết bị!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    else
+                    {
+                        NotificationNull = "Dự án chưa đăng kí thiết bị!";
+                    }
 
                 }
                 catch (HttpRequestException)
@@ -172,9 +177,16 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
             if (!String.IsNullOrEmpty(BorrowEquipmentName))
             {
                 var equipment = equipments.SingleOrDefault(i => i.EquipmentName == BorrowEquipmentName);
+                var a = BorrowEquipmentDtos.SingleOrDefault(i => i.EquipmentName == BorrowEquipmentName);
+
+                if(a != null)
+                {
+                    a.IsChecked = true;
+                }
 
                 if (equipment != null)
                 {
+                    equipment.IsChecked = true;
                     BorrowEquipments.Add(new()
                     {
                         index = BorrowEquipments.Count(),
@@ -182,7 +194,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                         name = BorrowEquipmentName
 
                     });
-               
+
                 }
             }
             
@@ -191,7 +203,15 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         {
 
             if (!String.IsNullOrEmpty(BorrowEquipmentName))
-            {              
+            {
+                var temp = equipments.SingleOrDefault(r => r.EquipmentName == BorrowEquipmentName);
+                var a = BorrowEquipmentDtos.SingleOrDefault(i => i.EquipmentName == BorrowEquipmentName);
+
+                if (a != null)
+                {
+                    a.IsChecked = false;
+                }
+             
                 var itemToRemove = BorrowEquipments.SingleOrDefault(r => r.name == BorrowEquipmentName);
                 if (itemToRemove != null)
                 BorrowEquipments.Remove(itemToRemove);
@@ -235,12 +255,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                 ShowErrorMessage("Đã có lỗi xảy ra: Không thể tạo dự án mới.");
             }
             MessageBox.Show("Đã Cập Nhật", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-            
-            foreach(var item in BorrowEquipments)
-            {
-                var equipment = BorrowEquipmentDtos.SingleOrDefault(i => i.EquipmentName == item.name);
-                if (equipment != null)  BorrowEquipmentDtos.Remove(equipment);
-            }
+            BorrowEquipmentDtos = (await _apiService.GetBorrowEquipmentAsync(ProjectName)).ToList();
             BorrowEquipments.Clear();
             BorrowId = "";
             BorrowedDate = DateTime.Now;

@@ -17,6 +17,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.Services
 {
@@ -27,7 +28,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.Services
 
 
         private readonly HttpClient _httpClient;
-        private const string serverUrl = "https://equipmentmanagementapi20240504223223.azurewebsites.net/";
+        private const string serverUrl = "https://equipmentmanagementapi.azurewebsites.net/";
 
         public ApiService()
         {
@@ -38,7 +39,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.Services
         public async Task<IEnumerable<EquipmentDto>> GetAllEquipmentsAsync()
         {
             
-            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}/api/Equipment?pageSize=20&pageNumber=1");
+            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}/api/Equipment?pageSize=200&pageNumber=1");
             
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -52,7 +53,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.Services
         }
         public async Task<IEnumerable<EquipmentDto>> GetAllEquipmentsActive()
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}api/Equipment/Enhanced?searchForProject=true&Status=0&pageSize=20&pageNumber=1&Status=0");
+            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}api/Equipment/Enhanced?searchForProject=true&Status=0&pageSize=200&pageNumber=1&Status=0");
 
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -64,17 +65,51 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.Services
             }
             return equipments;
         }
+        public string EquipmentId = "";
+        public string EquipmentName = "";
+        public string YearOfSupply = "";
+        public string EquipmentTypeId = "";
+        
         public async Task<IEnumerable<EquipmentDto>> GetEquipmentsRecordsAsync(string equipmentId, string equipmentName, string yearOfSupply, string equipmentTypeId, ECategory? category, EStatus? status, string[] Tags)
         {
-            foreach (var tag in Tags)
+            if(Tags != null)
             {
-                TagIds = TagIds + $"&TagIds={tag}";
+                foreach (var tag in Tags)
+                {
+                    TagIds = TagIds + $"&TagIds={tag}";
+                }
             }
-            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}/api/Equipment/Enhanced?EquipmentId={equipmentId}&EquipmentName={equipmentName}&EquipmentTypeId={equipmentTypeId}&EquipmentCategory={category}&Status={status}&YearOfSupply={yearOfSupply}&pageSize=20&pageNumber=1" + TagIds);
+            if(equipmentId != "")
+            {
+                EquipmentId = $"&EquipmentId={equipmentId}";
+            }
+            if (equipmentName != "")
+            {
+                EquipmentName = $"&EquipmentName={equipmentName}";
+            }
+            if (yearOfSupply != "")
+            {
+                YearOfSupply = $"&YearOfSupply={yearOfSupply}";
+            }
+            if (equipmentTypeId != "")
+            {
+                EquipmentTypeId = $"&EquipmentTypeId={equipmentTypeId}";
+            }
+            if (category != ECategory.All)
+            {
+                Category = $"&category={category}";
+            }
+            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}/api/Equipment/Enhanced?Status={status}&pageSize=200&pageNumber=1" + TagIds+Category+ EquipmentTypeId + EquipmentId+EquipmentName);
+
 
             response.EnsureSuccessStatusCode(); //equipmentId={equipmentId//
             string responseBody = await response.Content.ReadAsStringAsync();
-
+            EquipmentId = "";
+            EquipmentName = "";
+            YearOfSupply = "";
+            EquipmentTypeId = "";
+            Category = "";
+            TagIds = "";
             var equipments = JsonConvert.DeserializeObject<IEnumerable<EquipmentDto>>(responseBody);
             if (equipments is null)
             {
@@ -101,7 +136,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.Services
 
         public async Task<IEnumerable<EquipmentDto>> GetEquipmentsRecordsAsync(string search)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}api/Equipment?search={search}&pageSize=20&pageNumber=1");
+            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}api/Equipment?search={search}&pageSize=200&pageNumber=1");
 
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -346,16 +381,37 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.Services
             return responses;
         }
 
-        public string TagIds;
+        public string TagIds="";
+        public string EquiqmentTypeId="";
+        public string EquiqmentTypeName="";
+        public string Category="";
         public async Task<IEnumerable<EquipmentTypeDto>> GetEquipmentTypesRecordsAsync(string equiqmentTypeId, string equiqmentTypeName, ECategory category, string[] Tags)
         {
 
-            foreach (var tag in Tags )
+            if(Tags != null)
             {
-                TagIds = TagIds + $"&TagIds={tag}";              
+                foreach (var tag in Tags)
+                {
+                    TagIds = TagIds + $"&tagIds={tag}";
+                }
             }
-            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}api/EquipmentType/Enhanced?equipmentTypeId={equiqmentTypeId}&category={category}&equipmentTypeName={equiqmentTypeName}&pageSize=20&pageNumber=1"+ TagIds);
-
+            if(equiqmentTypeId != "")
+            {
+                EquiqmentTypeId = $"&equipmentTypeId={equiqmentTypeId}";
+            }
+            if (equiqmentTypeName != "")
+            {
+                EquiqmentTypeName = $"&equipmentTypeName={equiqmentTypeName}";
+            }
+            if (category != ECategory.All)
+            {
+                Category = $"&category={category}";
+            }
+            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}api/EquipmentType/Enhanced?pageSize=200&pageNumber=1" + TagIds+Category+EquiqmentTypeId+EquiqmentTypeName);
+            TagIds = "";
+            Category = "";
+            EquiqmentTypeName = "";
+            EquiqmentTypeId = "";
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
 
@@ -365,11 +421,12 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.Services
                 return new List<EquipmentTypeDto>();
             }
             return responses;
-        }
+            
+    }
 
         public async Task<IEnumerable<EquipmentTypeDto>> GetEquipmentTypesRecordsAsync(string serchKeyWord)
-        {
-            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}api/EquipmentType?search={serchKeyWord}&pageSize=20&pageNumber=1");
+        {   
+            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}api/EquipmentType?search={serchKeyWord}&pageSize=200&pageNumber=1");
 
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -467,7 +524,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.Services
 
         public async Task<IEnumerable<TagDto>> GetAllTagAsync()
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}/api/Tag?pageSize=5&pageNumber=1 ");
+            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}/api/Tag?pageSize=100&pageNumber=1 ");
 
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -542,7 +599,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.Services
         #region Project
         public async Task<IEnumerable<ProjectDto>> GetAllProjectsAsync()
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}api/Project?pageSize=20&pageNumber=1");
+            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}api/Project?pageSize=200&pageNumber=1");
 
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -557,7 +614,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.Services
 
         public async Task<IEnumerable<ProjectDto>> GetProjectsAsync(string projectName)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}api/Project?pageSize=20&search={projectName}&year=2024&pageNumber=1");
+            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}api/Project?pageSize=200&search={projectName}&year=2024&pageNumber=1");
 
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -647,7 +704,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.Services
             {
                 projectName = projectName.Replace("#", "%23");
             }
-            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}/api/Equipment/Enhanced?pageSize=20&Status=0&ProjectName={projectName}&pageNumber=1");
+            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}/api/Equipment/Enhanced?pageSize=200&Status=0&ProjectName={projectName}&pageNumber=1");
 
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -705,7 +762,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.Services
 
         public async Task<IEnumerable<BorrowDto>> GetBorrowsAsync(string projectName)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}api/Borrow?pageSize=20&pageNumber=1&projectName={projectName}");
+            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}/api/Borrow?projectName={projectName}&returned=false&pageSize=20&pageNumber=1");
 
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -714,6 +771,20 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.Services
             if (equipments is null)
             {
                 return new List<BorrowDto>();
+            }
+            return equipments;
+        }
+        public async Task<IEnumerable<CreateBorrowDto>> GetEquipmentFromBorrowIdAsync(string projectName, string borrowId)
+        {
+            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}/api/Borrow?borrowId={borrowId}&pageNumber=1&pageSize=200&projectName={projectName}");
+
+            response.EnsureSuccessStatusCode();
+            string responseBody = await response.Content.ReadAsStringAsync();
+
+            var equipments = JsonConvert.DeserializeObject<IEnumerable<CreateBorrowDto>>(responseBody);
+            if (equipments is null)
+            {
+                return new List<CreateBorrowDto>();
             }
             return equipments;
         }
@@ -732,7 +803,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.Services
         #region FormSubcribe
         public async Task<IEnumerable<FormSubcribeDto>> GetAllFormAsync()
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}api/Notifications?pageSize=100&pageNumber=1");
+            HttpResponseMessage response = await _httpClient.GetAsync($"{serverUrl}api/Notifications?pageSize=200&pageNumber=1");
 
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();

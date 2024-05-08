@@ -10,6 +10,7 @@
              xmlns:borrowreturn="clr-namespace:FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels.BorrowReturn;assembly=FabLab.DeviceManagement.DesktopApplication.Core"
              xmlns:Components="clr-namespace:FabLab.DeviceManagement.DesktopApplication.Resources.Components" 
              mc:Ignorable="d" 
+             xmlns:md="clr-namespace:ModalControl;assembly=ModalControl"
              d:DataContext="{d:DesignInstance Type=borrowreturn:CreateNewReturnRequestViewModel}"
              d:DesignHeight="770" d:DesignWidth="1190"
              Background="{StaticResource ColorBackground}"
@@ -25,15 +26,6 @@
         </materialDesign:DialogHost.DialogContent>
         <materialDesign:Card Margin="10">
             <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0"
-                    Margin="10"
-                    HorizontalAlignment="Center"
-                    Style="{StaticResource FieldLabel}" 
-                    Text="Đơn trả" FontWeight="Bold" FontSize="20"/>
                 <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
@@ -41,6 +33,8 @@
                     </Grid.RowDefinitions>
                     <Grid Grid.Column="0" x:Name="grid1">
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
@@ -62,11 +56,11 @@ materialDesign:HintAssist.Hint="Tên dự án"
 Style="{StaticResource ComboBox}"
 ItemsSource="{Binding ProjectNames}"
 Text="{Binding ProjectName}">
-                            <!--<i:Interaction.Triggers>
+                            <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="SelectionChanged">
-                                    <prism:InvokeCommandAction Command="{Binding LoadBorrowIdsCommand}"/>
+                                    <prism:InvokeCommandAction Command="{Binding EnableButtonSearchCommand}"/>
                                 </i:EventTrigger>
-                            </i:Interaction.Triggers>-->
+                            </i:Interaction.Triggers>
                             
                             <ComboBox.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -78,59 +72,189 @@ Text="{Binding ProjectName}">
 Margin="10" 
 Height="{Binding Height, ElementName=grid1}"
 Style="{StaticResource ButtonPrimary}"
-materialDesign:ButtonAssist.CornerRadius="10"
+materialDesign:ButtonAssist.CornerRadius="10" Command="{Binding LoadBorrowIdsCommand }"
+                                 IsEnabled="{Binding IsEnable}"
 Content="Tìm kiếm">
-                            <i:Interaction.Triggers>
+                            <!--<i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
                                     <prism:InvokeCommandAction Command="{Binding LoadBorrowIdsCommand}"/>
                                 </i:EventTrigger>
-                            </i:Interaction.Triggers>
+                            </i:Interaction.Triggers>-->
                         </Button>
+
                         <TextBlock Grid.Column="0"
  Grid.Row="1"
-  Text="Mã đơn mượn:"
-  Style="{StaticResource FieldLabel}"
-  Margin="10"
-  VerticalAlignment="Center"/>
-                        <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
-Margin="10"
-materialDesign:HintAssist.Hint="Mã đơn mượn"
-Style="{StaticResource ComboBox}"
-ItemsSource="{Binding BorrowIds}" IsEnabled="{Binding IsSearched}"
-Text="{Binding BorrowId}">
-                            <ComboBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <VirtualizingStackPanel />
-                                </ItemsPanelTemplate>
-                            </ComboBox.ItemsPanel>
-                        </ComboBox>
-                        <TextBlock Grid.Column="0"
- Grid.Row="2"
   Text="Ngày trả hiện tại:"
   Style="{StaticResource FieldLabel}"
   Margin="10"
   VerticalAlignment="Center"/>
-                        <!--<ComboBox Grid.Row="2" Grid.Column="1"
-Margin="10"
-materialDesign:HintAssist.Hint="Ngày trả hiện tại"
-Style="{StaticResource ComboBox}"
-ItemsSource="{Binding ProjectNames}"
-Text="{Binding ProjectName}">
-                            <ComboBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <VirtualizingStackPanel />
-                                </ItemsPanelTemplate>
-                            </ComboBox.ItemsPanel>
-                        </ComboBox>-->
-                        <TextBox  Grid.Row="2"
+
+                        <TextBox  Grid.Row="1"
 materialDesign:HintAssist.Hint="Ngày trả hiện tại" 
 FontSize="16" Grid.Column="1" Grid.ColumnSpan="2"
 Style="{StaticResource TextBox}"
 Margin="10" IsReadOnly="False"
 VerticalAlignment="Center"
 Text="{Binding RealReturnDate,StringFormat=dd/MM/yyyy}"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
+ Margin="10"
+HorizontalAlignment="Center"
+Style="{StaticResource FieldLabel}" 
+Text="Danh sách đơn mượn" FontWeight="Bold" FontSize="20"/>
+                        <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2">
+                            <Separator Margin="10"/>
+                        </Grid>
+                        <DataGrid IsReadOnly="True" 
+            AutoGenerateColumns="False" 
+            Margin=" 10" 
+            VerticalAlignment="Top" Grid.Column="0" Grid.ColumnSpan="3"
+            Grid.Row="4" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            SelectedItem="{Binding SelectedItem}"
+            ItemsSource="{Binding Borrows}">
+                            <DataGrid.Columns >
+                                <DataGridTextColumn  Header="Mã đơn mượn" Binding="{Binding BorrowId }" />
+                                <DataGridTextColumn Header="Người mượn"  Binding="{Binding Borrower }" />
+                             
+                                <DataGridTemplateColumn Width="auto">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+
+                                            <Button Grid.Column="2" 
+Background="Beige"
+   Margin="5"  IsEnabled="{Binding IsChecked}"
+Command="{Binding DataContext.ReturnRequestCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+   materialDesign:ButtonAssist.CornerRadius="10"
+   Content="Trả đơn">
+
+
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <DataGridTemplateColumn Width="auto">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+
+                                            <Button Grid.Column="2" 
+Background="Beige"
+   Margin="5"  IsEnabled="{Binding IsChecked}"
+Command="{Binding DataContext.ShowBorrowEquipmentViewCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+   materialDesign:ButtonAssist.CornerRadius="10"
+   Content="Danh sách thiết bị">
+
+
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <!--<DataGridTemplateColumn Header="Đăng kí " Width="auto">
+                                -->
+                                <!--<DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox>
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Checked">
+                                                    <prism:InvokeCommandAction Command="{Binding DataContext.AddBorrowEquipmentCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+                                                </i:EventTrigger>
+                                                <i:EventTrigger EventName="Unchecked">
+                                                    <prism:InvokeCommandAction Command="{Binding DataContext.RemoveBorrowEquipmentCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </CheckBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>-->
+                                <!--
+                                
+                            </DataGridTemplateColumn>-->
+                            </DataGrid.Columns>
+
+                        </DataGrid>
+
+                        <!--<TextBlock Grid.Column="0"
+ Grid.Row="1"
+  Text="Mã đơn mượn:"
+  Style="{StaticResource FieldLabel}"
+  Margin="10"
+  VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0"
+Grid.Row="2"
+ Text="Thiết bị mượn:"
+ Style="{StaticResource FieldLabel}"
+ Margin="10"
+ VerticalAlignment="Center"/>
+                        <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+Margin="10" 
+materialDesign:HintAssist.Hint="Mã đơn mượn"
+Style="{StaticResource ComboBox}" 
+                                  SelectedItem="{Binding SelectedBorrowId}"
+ItemsSource="{Binding BorrowIds,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" IsEnabled="{Binding IsSearched}"
+Text="{Binding BorrowId}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="SelectionChanged">
+                                    <prism:InvokeCommandAction Command="{Binding LoadBorrowEquipmentsCommand}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            
+                            <ComboBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel />
+                                </ItemsPanelTemplate>
+                            </ComboBox.ItemsPanel>
+                        </ComboBox>
+                        <DataGrid IsReadOnly="True" 
+    AutoGenerateColumns="False" 
+    VirtualizingPanel.ScrollUnit="Pixel" 
+    Margin=" 10"  
+    VerticalAlignment="Top" 
+    Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" 
+    ItemsSource="{Binding BorrowEquipment, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+
+                            <DataGrid.Columns >
+
+                                <DataGridTextColumn Header="STT" Binding="{Binding index, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay  }" />
+                                <DataGridTextColumn Header="Tên thiết bị"  Binding="{Binding name }" />
+
+
+                                --><!--<DataGridTemplateColumn>
+                          <DataGridTemplateColumn.CellTemplate>
+                              <DataTemplate>
+                                  <Button Grid.Row="1"
+ Grid.Column="3"
+  Margin="10"
+  HorizontalAlignment="Right"
+ Height="30"
+  Width="80"                              
+  FontSize="14"      
+   Command="{Binding DataContext.DeleteEquipmentCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}"
+materialDesign:ButtonAssist.CornerRadius="5"
+Content="Delete">
+
+                                  </Button>
+                              </DataTemplate>
+                          </DataGridTemplateColumn.CellTemplate>
+                      </DataGridTemplateColumn>--><!--
+                            </DataGrid.Columns>
+
+
+                        </DataGrid>
+                        <TextBlock Grid.Column="0"
+ Grid.Row="3"
+  Text="Ngày trả hiện tại:"
+  Style="{StaticResource FieldLabel}"
+  Margin="10"
+  VerticalAlignment="Center"/>
+                       
+                        <TextBox  Grid.Row="3"
+materialDesign:HintAssist.Hint="Ngày trả hiện tại" 
+FontSize="16" Grid.Column="1" Grid.ColumnSpan="2"
+Style="{StaticResource TextBox}"
+Margin="10" IsReadOnly="False"
+VerticalAlignment="Center"
+Text="{Binding RealReturnDate,StringFormat=dd/MM/yyyy}"/>-->
                     </Grid>
-                    <Button  Grid.Row="1"
+                    <!--<Button  Grid.Row="1"
 Margin="30"
 Height="{Binding Height, ElementName=grid1}"
 Style="{StaticResource ButtonPrimary}"
@@ -141,8 +265,12 @@ Content="Xác nhận">
                                 <prism:InvokeCommandAction Command="{Binding ReturnRequestCommand}"/>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
-                    </Button>
+                    </Button>-->
+                    
                 </Grid>
+                <md:Modal Panel.ZIndex="100" IsOpen="{Binding IsShowBorrowEquipmentView}" >
+                    <local:ShowBorrowEquipmentView/>
+                </md:Modal>
             </Grid>
         </materialDesign:Card>
        
