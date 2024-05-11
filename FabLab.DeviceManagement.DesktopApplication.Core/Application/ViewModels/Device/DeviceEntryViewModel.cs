@@ -43,6 +43,10 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         public string LocationId { get; set; }
         public string SupplierName { get; set; }
         public EStatus Status { get; set; }
+        
+        public string StatusStr { get;set; }
+        public string ColorStatus { get; set; }
+
         public string[] Tags { get; set; }
 
 
@@ -90,6 +94,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         }
         //Invoke
         public event Action? Updated;
+        public event Action? UpdateColorStatus;
         public event Action? OnException;
         public event Action? IsOpenFixView;
         public event Action? IsOpenMoreDetailView;
@@ -133,38 +138,51 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
             EquipmentTypeName = equipmentTypeName;
             Tags = tags;
         }
-
+        public bool IsEnableButton { get; set; }
         public void SetStatusEquipment()
         {
+            
             switch (Status)
             {
                 case EStatus.Active:
                     {
                         ContentButton = "Báo hỏng";
                         ColorButton = "Red";
+                        ColorStatus = "Green";
+                        StatusStr = "Khả dụng";
+                        IsEnableButton = true;
                         break;
                     }
                 case EStatus.Inactive:
                     {
-                        ContentButton = "Báo hỏng";
-                        ColorButton = "Red";
+                        StatusStr = "Đang mượn";
+                        IsEnableButton = false;
+
+                        ColorStatus = "Orange";
                         break;
                     }
                 case EStatus.NonFunctional:
                     {
                         ContentButton = "Bảo trì";
+                        StatusStr = "Đang hỏng";
                         ColorButton = "Yellow";
+                        ColorStatus = "Red";
+                        IsEnableButton = true;
                         break;
                     }
                 case EStatus.Maintenance:
                     {
-                        ContentButton = "Tốt";
+                        ContentButton = "Bảo trì xong";
+                        StatusStr = "Đang bảo trì";
                         ColorButton = "Green";
+                        ColorStatus = "Black";
+                        IsEnableButton = true;
                         break;
                     }
                 default: break;
 
             }
+            UpdateColorStatus?.Invoke();
         }
         public void SetApiService(IApiService apiService)
         {
@@ -184,7 +202,6 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         }
         private async void UpdateStatus()
         {
-            
             switch (Status)
             {
                 case EStatus.Active:
@@ -194,7 +211,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                     }
                 case EStatus.NonFunctional:
                     {
-                        UpdatedStatus = EStatus.Maintenance; 
+                        UpdatedStatus = EStatus.Maintenance;
                         break;
                     }
                 case EStatus.Maintenance:
@@ -206,6 +223,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
 
             }
 
+
             FixEquipmentDto fixDto = new FixEquipmentDto(EquipmentId, EquipmentName, YearOfSupply, CodeOfManager, UpdatedStatus, LocationId,SupplierName,equipmentTypeId);
 
             if (_mapper is not null && _apiService is not null)
@@ -215,6 +233,26 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                     await _apiService.FixEquipmentAsync(fixDto);
                     Updated?.Invoke();
                     MessageBox.Show("Đã Cập Nhật", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    switch (Status)
+                    {
+                        case EStatus.Active:
+                            {
+                                UpdatedStatus = EStatus.NonFunctional;
+                                break;
+                            }
+                        case EStatus.NonFunctional:
+                            {
+                                UpdatedStatus = EStatus.Maintenance;
+                                break;
+                            }
+                        case EStatus.Maintenance:
+                            {
+                                UpdatedStatus = EStatus.Active;
+                                break;
+                            }
+                        default: break;
+
+                    }
 
                 }
                 catch (HttpRequestException)

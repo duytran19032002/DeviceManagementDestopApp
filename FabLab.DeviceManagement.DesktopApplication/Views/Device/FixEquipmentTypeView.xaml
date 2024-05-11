@@ -92,7 +92,7 @@
                                    ItemsSource="{Binding Path=NewCategory, Converter={vc:EnumToCollectionConverter}, Mode=OneTime}"
                                    SelectedValuePath="Value"
                                    DisplayMemberPath="Description"
-                                   Text="{Binding Path=NewCategory}">
+                                   Text="{Binding CategoryStr}">
                     <ComboBox.ItemsPanel>
                         <ItemsPanelTemplate>
                             <VirtualizingStackPanel />
@@ -129,7 +129,7 @@ ItemsSource="{Binding TagIds}">
 
                 <Button Grid.Row="2"  
  Grid.Column="3"
-Margin="10"
+Margin="10" Background="Coral"
   HorizontalAlignment="Left"
  Height="30"                            
   FontSize="14"                             

@@ -75,7 +75,7 @@ Text="{Binding SearchKeyWord, UpdateSourceTrigger=PropertyChanged}"/>
                         </Button>
                         <Button Grid.ColumnSpan="3" Grid.Row="1"
 Margin="10"
-
+                                Background="Coral"
 Style="{StaticResource ButtonPrimary}"
 materialDesign:ButtonAssist.CornerRadius="10"
 Content="Tìm kiếm nâng cao">
@@ -104,7 +104,7 @@ Content="Tìm kiếm nâng cao">
                             <DataGrid.Columns >
                                 <DataGridTextColumn Header="Tên loại" Binding="{Binding EquipmentTypeName}" Width="auto"/>
                                 <DataGridTextColumn Header="Mã loại" Binding="{Binding EquipmentTypeId}" Width="auto"/>
-                                <DataGridTextColumn Header="Lĩnh vực" Binding="{Binding Category}" Width="*"/>
+                                <DataGridTextColumn Header="Lĩnh vực" Binding="{Binding CategoryStr}" Width="*"/>
                                 <DataGridTextColumn Header="Mô tả" Binding="{Binding Description}" Width="*"/>
                                 <DataGridTemplateColumn Width="auto">
                                     <DataGridTemplateColumn.CellTemplate>
@@ -238,7 +238,7 @@ Text="{Binding NotificationNull}" FontWeight="Bold" FontSize="20"/>
        Margin="10 10 10 0">
                     <Button Grid.Column="2" Grid.Row="0"
         Margin="10"
-
+Background="Orange"
         Style="{StaticResource ButtonPrimary}"
         materialDesign:ButtonAssist.CornerRadius="10"
         Content="Đăng kí loại thiết bị">
