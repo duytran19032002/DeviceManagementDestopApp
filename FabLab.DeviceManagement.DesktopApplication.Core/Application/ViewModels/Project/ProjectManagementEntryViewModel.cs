@@ -22,6 +22,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         public string RealEndDate { get; set; }
         public string Description { get; set; }
         public bool Approved { get; set; }
+        public string ApprovedStr => (Approved) ? "Đã duyệt" : "Chưa duyệt";
         public bool StatusApproved => !Approved;
         public List<BorrowDto> Borrows { get; set; } = new();
 
@@ -115,8 +116,8 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                 }
                 catch (HttpRequestException)
                 {
-                    OnException?.Invoke();
-                    ShowErrorMessage("Đã có lỗi xảy ra: Mất kết nối với server.");
+                    
+                    MessageBox.Show("Vui lòng hoàn thành dự án trước khi xóa!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
 
@@ -132,8 +133,15 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
             {
                 try
                 {
-                    await _apiService.ApprovedProjectAsync(approvedDto);
-                    MessageBox.Show("Đã Cập Nhật", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                   
+                    if (MessageBox.Show("Xác nhận duyệt", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
+                        await _apiService.ApprovedProjectAsync(approvedDto);
+                        Updated?.Invoke();
+                        MessageBox.Show("Đã Cập Nhật", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    }
+                    else { }
                 }
                 catch (HttpRequestException)
                 {
@@ -152,16 +160,21 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
             {
                 try
                 {
-                    
-                    await _apiService.EndProjectAsync(endDto);
-                    
-                    MessageBox.Show("Đã Cập Nhật", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    if (MessageBox.Show("Xác nhận hoàn thành", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
+                        await _apiService.EndProjectAsync(endDto);
+                        Updated?.Invoke();
+                        MessageBox.Show("Đã Cập Nhật", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    }
+                    else { }
+                  
                 }
                 catch (HttpRequestException)
                 {
                     //OnException?.Invoke();
                     
-                    MessageBox.Show("Có đơn mượn chưa được trả, vui lóng kiểm tra lại các đơn mượn!", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Có đơn mượn chưa được trả, vui lòng kiểm tra lại các đơn mượn!", "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
             Updated?.Invoke();

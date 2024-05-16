@@ -87,17 +87,17 @@
 
                     <TextBlock Grid.Column="0"
                                Grid.Row="1"
-                               Text="Tên loại thiết bị:"
+                               Text="Mã loại thiết bị:"
                                Style="{StaticResource FieldLabel}"
                                Margin="10"
                                VerticalAlignment="Center" />
                     <ComboBox Grid.Column="1"
                               Grid.Row="1"
-                              materialDesign:HintAssist.Hint="Tên loại thiết bị"
+                              materialDesign:HintAssist.Hint="Mã loại thiết bị"
                               Style="{StaticResource ComboBox}"
                               Margin="10"
-                              ItemsSource="{Binding EquipmentTypeNames}"
-                              Text="{Binding EquipmentTypeName}">
+                              ItemsSource="{Binding EquipmentTypeIds}"
+                              Text="{Binding EquipmentTypeId}">
                         <ComboBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <VirtualizingStackPanel />
@@ -140,7 +140,7 @@
                               ItemsSource="{Binding Path=Category, Converter={vc:EnumToCollectionConverter}, Mode=OneTime}"
                               SelectedValuePath="Value"
                               DisplayMemberPath="Description"
-                              Text="{Binding Path=Category}" />
+                              Text="{Binding CategoryStr,Mode=TwoWay}" />
                     
 
 
@@ -159,7 +159,7 @@
                               ItemsSource="{Binding Path=Status, Converter={vc:EnumToCollectionConverter}, Mode=OneTime}"
                               DisplayMemberPath="Description"
                               SelectedValuePath="Value"
-                              Text="{Binding StatusStr}"
+                              Text="{Binding StatusStr,Mode=TwoWay}"
                               />
                     <!--SelectedValuePath="Value"
 DisplayMemberPath="Description"-->
@@ -209,9 +209,9 @@ DisplayMemberPath="Description"-->
                         <!--<DataGridTextColumn Header="Tình trạng"
                                             Width="*"
                                             Binding="{Binding Status}" />-->
-                        <DataGridTemplateColumn Header="Tình trạng" Width="auto">
+                        <DataGridTemplateColumn Header="Tình trạng" Width="*">
                             <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
+                                <DataTemplate> 
                                     <TextBlock  FontWeight="Bold" Text="{Binding StatusStr}" Foreground="{Binding ColorStatus}"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -220,8 +220,9 @@ DisplayMemberPath="Description"-->
                         <DataGridTemplateColumn Width="auto">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Content="{Binding ContentButton}"
+                                    <Button BorderThickness="0" Content="{Binding ContentButton}"
                                             Background="{Binding ColorButton}"
+                                           
                                             IsEnabled="{Binding IsEnableButton}"
                                             Command="{Binding UpdateStatusCommand}"
                                             materialDesign:ButtonAssist.CornerRadius="10">

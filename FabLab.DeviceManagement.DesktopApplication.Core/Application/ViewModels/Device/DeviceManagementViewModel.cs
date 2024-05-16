@@ -29,6 +29,7 @@ using System.IO;
 using System.Windows.Media.Imaging;
 using System.Runtime.CompilerServices;
 using FabLab.DeviceManagement.DesktopApplication.Core.Domain.Dtos.Tags;
+using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels.Device
 {
@@ -404,17 +405,21 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                     if (!String.IsNullOrEmpty(NewEquipmentTypeId))
                     {
                         var Dto = (await _apiService.GetInformationEquipmenAsync(NewEquipmentTypeId));
-                        Specifications = new(Dto.Specs);                       
-                        DataPics = Dto.Pics;                     
+                        Specifications = new(Dto.Specs);
+                       
+                        DataPics = Dto.Pics;
+                        var index = 1;
                         foreach (var pic in DataPics)
                         {
                             if (!String.IsNullOrEmpty(pic.fileData))
                             {
                                 Pictures.Add(new ImageBitmap()
                                 {
-                                    Source = Base64toImage(pic.fileData)
-                                });
+                                    Source = Base64toImage(pic.fileData),
+                                    index = index
+                                }) ;
                             }
+                            index++;
                         }
                     }
                 }
@@ -456,12 +461,22 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
             NotificationNull = "";
             try
             {
-                if(TagId != null)
-                {
-                    NewTag = TagId.Split("#").Skip(1).ToArray();
-                }
 
-                filteredEquipments = (await _apiService.GetEquipmentsRecordsAsync(EquipmentId, EquipmentName, YearOfSupply, EquipmentTypeId, Category, Status, NewTag)).ToList();
+
+                if (CategoryStr != "" || StatusStr != "" || !String.IsNullOrEmpty(EquipmentId)
+                   || !String.IsNullOrEmpty(EquipmentName) || !String.IsNullOrEmpty(YearOfSupply)
+                   || !String.IsNullOrEmpty(EquipmentTypeId) || TagId != "")
+                {
+                    if (TagId != null)
+                    {
+                        NewTag = TagId.Split("#").Skip(1).ToArray();
+                    }
+                    filteredEquipments = (await _apiService.GetEquipmentsRecordsAsync(EquipmentId, EquipmentName, YearOfSupply, EquipmentTypeId, CategoryStr, StatusStr, null)).ToList();
+
+                }
+                else filteredEquipments = (await _apiService.GetAllEquipmentsAsync()).ToList();
+
+                
                 if (filteredEquipments.Count > 0)
 
                 {
@@ -504,43 +519,39 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         private async void LoadDeviceEntriesBase()
         {
             NotificationNull = "";
-            if (!String.IsNullOrEmpty(SearchKeyWord))
-            {               
-                try
+            try
+            {
+                filteredEquipments = (await _apiService.GetEquipmentsRecordsAsync(SearchKeyWord)).ToList();
+                if (filteredEquipments.Count > 0)
                 {
-                    filteredEquipments = (await _apiService.GetEquipmentsRecordsAsync(SearchKeyWord)).ToList();
-                    if (filteredEquipments.Count > 0)
-                    {
-                        var viewModels = _mapper.Map<IEnumerable<EquipmentDto>, IEnumerable<DeviceEntryViewModel>>(filteredEquipments);
-                        DeviceEntries = new(viewModels);
+                    var viewModels = _mapper.Map<IEnumerable<EquipmentDto>, IEnumerable<DeviceEntryViewModel>>(filteredEquipments);
+                    DeviceEntries = new(viewModels);
 
-                        foreach (var entry in DeviceEntries)
-                        {
-                            entry.SetApiService(_apiService);
-                            entry.SetMapper(_mapper);
-                            entry.Updated += LoadInitial;
-                            entry.OnException += Error;
-                            entry.SetStatusEquipment();
-                            entry.IsOpenFixView += Entry_IsOpen;
-                            entry.IsOpenMoreDetailView += Entry_IsOpenMoreDetailView;
-                        }
-                    }
-                    else
+                    foreach (var entry in DeviceEntries)
                     {
-                          DeviceEntries.Clear();
+                        entry.SetApiService(_apiService);
+                        entry.SetMapper(_mapper);
+                        entry.Updated += LoadInitial;
+                        entry.OnException += Error;
+                        entry.SetStatusEquipment();
+                        entry.IsOpenFixView += Entry_IsOpen;
+                        entry.IsOpenMoreDetailView += Entry_IsOpenMoreDetailView;
+                    }
+                }
+                else
+                {
+                    DeviceEntries.Clear();
                     NotificationNull = "Không tìm thấy thiết bị!";
                     TagId = "";
-                    }
+                }
 
-                
-                }
-                catch (HttpRequestException)
-                {
-                    ShowErrorMessage("Đã có lỗi xảy ra: Mất kết nối với server.");
-                }
+
             }
-            else MessageBox.Show("Cần điền đầy đủ các thông tin! ", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-           
+            catch (HttpRequestException)
+            {
+                ShowErrorMessage("Đã có lỗi xảy ra: Mất kết nối với server.");
+            }
+
 
         }
 
@@ -695,7 +706,6 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
             NewCodeOfManage = "";
             NewLocationId = "";
             NewSupplierName = "";
-            NewStatus = EStatus.Active;
             NewEquipmentTypeId = "";
             IsOpenFixView = false;
 

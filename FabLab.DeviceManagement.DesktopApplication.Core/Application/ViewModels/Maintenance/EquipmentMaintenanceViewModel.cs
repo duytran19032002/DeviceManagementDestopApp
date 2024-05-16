@@ -78,7 +78,42 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         }
        
         public ECategory Category { get; set; }
+        private string _CategoryStr;
+        public string CategoryStr
+        {
+            get => _CategoryStr;
+            set
+            {
+                _CategoryStr = value;
+                switch (_CategoryStr)
+                {
+                    case "Tất cả":
+                        {
+                            Category = ECategory.All;                       
+                            break;
+                        }
+                    case "Cơ khí":
+                        {
+                            Category = ECategory.Mechanical;
+                            break;
+                        }
+                    case "Tự động":
+                        {
+                            Category = ECategory.Automation;
+                            break;
 
+                        }
+                    case "IoT_Robotics":
+                        {
+                            Category = ECategory.IoT_Robotics;
+                            break;
+
+                        }
+                        
+                    default: break;
+                }
+            }
+        }
 
         public List<string> EquipmentNames { get; set; } = new();
         public List<string> EquipmentIds { get; set; } = new();
@@ -128,8 +163,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         }
         private async void LoadInitial()
         {
-            Category = ECategory.All;
-
+            
             EquipmentId = "";
             EquipmentName = "";
             EquipmentTypeId = "";
@@ -164,9 +198,14 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
         {
             try
             {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-                filteredEquipments = (await _apiService.GetEquipmentsRecordsAsync(EquipmentId,EquipmentName,YearOfSupply,EquipmentTypeId,Category,Status,null)).ToList();
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+                if (CategoryStr is not null || StatusStr is not null || !String.IsNullOrEmpty(EquipmentId) 
+                    || !String.IsNullOrEmpty(EquipmentName) || !String.IsNullOrEmpty(YearOfSupply)
+                    || !String.IsNullOrEmpty(EquipmentTypeId))
+                {
+                    filteredEquipments = (await _apiService.GetEquipmentsRecordsAsync(EquipmentId, EquipmentName, YearOfSupply, EquipmentTypeId, CategoryStr, StatusStr, null)).ToList();
+                }
+                else filteredEquipments= (await _apiService.GetAllEquipmentsAsync()).ToList();
+
 
                 //filteredEquipments = (await _apiService.GetEquipmentsRecordsAsync()).ToList();
                 var viewModels = _mapper.Map<IEnumerable<EquipmentDto>, IEnumerable<DeviceEntryViewModel>>(filteredEquipments);
@@ -185,6 +224,10 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
             {
                 ShowErrorMessage("Đã có lỗi xảy ra: Mất kết nối với server test.");
             }
+            CategoryStr = null;
+            StatusStr = null;
+            
+            
 
         }
         private void Error()

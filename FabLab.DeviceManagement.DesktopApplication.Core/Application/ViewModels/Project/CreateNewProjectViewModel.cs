@@ -100,6 +100,10 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
             {
                 equipments = new ObservableCollection<EquipmentDto>((await _apiService.GetEquipmentsRecordsAsync(EquipmentName)).ToList());               
             }
+            else
+            {
+                UpdateEquipmentIds();
+            }
         }
         private void AddBorrowEquipment()
         {
@@ -118,6 +122,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Application.ViewModels
                     });
                     
                 }
+
                
             }
            

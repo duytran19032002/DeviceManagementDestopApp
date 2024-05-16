@@ -1,6 +1,7 @@
 ﻿using FabLab.DeviceManagement.DesktopApplication.Core.Domain.Dtos.Borrowings;
 using FabLab.DeviceManagement.DesktopApplication.Core.Domain.Dtos.Equipments;
 using FabLab.DeviceManagement.DesktopApplication.Core.Domain.Dtos.EquipmentTypes;
+using FabLab.DeviceManagement.DesktopApplication.Core.Domain.Dtos.FablabSupervises;
 using FabLab.DeviceManagement.DesktopApplication.Core.Domain.Dtos.Locations;
 using FabLab.DeviceManagement.DesktopApplication.Core.Domain.Dtos.Projects;
 using FabLab.DeviceManagement.DesktopApplication.Core.Domain.Dtos.Returnings;
@@ -28,7 +29,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Domain.Services
         Task<IEnumerable<EquipmentDto>> GetAllEquipmentsAsync();
         Task<IEnumerable<EquipmentDto>> GetAllEquipmentsActive();
         Task<IEnumerable<EquipmentDto>> GetEquipmentsRecordsAsync(string yearSelected, string equipmentId, string equipmentTypeId, ECategory? category);
-        Task<IEnumerable<EquipmentDto>> GetEquipmentsRecordsAsync(string equipmentId, string equipmentName, string yearOfSupply, string equipmentTypeId, ECategory? category, EStatus? status, string[] Tags);
+        Task<IEnumerable<EquipmentDto>> GetEquipmentsRecordsAsync(string equipmentId, string equipmentName, string yearOfSupply, string equipmentTypeId, string? category, string? status, string[] Tags);
         Task<IEnumerable<EquipmentDto>> GetEquipmentsRecordsAsync(string search);
         Task CreateEquipment(CreateEquipmentDto equipment);
         Task FixEquipmentAsync(FixEquipmentDto fixDto);
@@ -52,11 +53,13 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Domain.Services
 
         //EquipmentType
         Task<IEnumerable<EquipmentTypeDto>> GetAllEquipmentTypesAsync();
-        Task<IEnumerable<EquipmentTypeDto>>  GetEquipmentTypesRecordsAsync(string equiqmentTypeId, string equiqmentTypeName, ECategory category, string[] Tags);
+        Task<IEnumerable<EquipmentTypeDto>>  GetEquipmentTypesRecordsAsync(string equiqmentTypeId, string equiqmentTypeName, string? category, string[] Tags);
         Task<IEnumerable<EquipmentTypeDto>> GetEquipmentTypesRecordsAsync(string serchKeyWord);
         Task<InformationEquipmentDto> GetInformationEquipmenAsync(string equiqmentTypeId);
         Task CreateEquipmentType(CreateEquimentTypeDto equipmentType);
         Task FixEquipmentTypesAsync(EquipmentTypeDto fixDto);
+        Task FixImageEquipmentTypesAsync(FixImageDto fixDto);
+        Task FixSpecificationEquipmentTypesAsync(FixSpecificationDto fixDto);
         Task DeleteEquipmentTypeAsync(string equipmentTypeId);
 
         //Project
@@ -80,5 +83,7 @@ namespace FabLab.DeviceManagement.DesktopApplication.Core.Domain.Services
         Task SeenFormAsync(SeenFromDto seenFromDto);
         Task DeleteFormAsync(string projectName);
 
+        //Get Warning Notifications
+        Task<IEnumerable<WarningNotificationDtos>> GetWarningNotificationAsync(DateTime endDate, DateTime startDate);
     }
 }

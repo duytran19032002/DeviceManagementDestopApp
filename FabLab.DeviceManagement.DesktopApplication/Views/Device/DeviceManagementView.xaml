@@ -61,24 +61,36 @@
                                  Style="{StaticResource TextBox}"
                                  Margin="10"
                                  VerticalAlignment="Center"
-                                 Text="{Binding SearchKeyWord, UpdateSourceTrigger=PropertyChanged}" />
+                                 Text="{Binding SearchKeyWord, UpdateSourceTrigger=PropertyChanged}">
+                            <TextBox.InputBindings>
+                                <KeyBinding Command="{Binding LoadDeviceEntriesCommand1}"
+                                            Key="Enter" />
+                            </TextBox.InputBindings>
+                        </TextBox>
 
 
                         <Button Grid.Column="2"
                                 Grid.Row="0"
+                                Background="Coral"
                                 Margin="10"
                                 Style="{StaticResource ButtonPrimary}"
                                 materialDesign:ButtonAssist.CornerRadius="10"
-                                Content="Tìm kiếm">
+                                >
+                            <materialDesign:PackIcon  Height="30"
+                                                      Width="30"
+                                                      Kind="Magnify" />
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
                                     <prism:InvokeCommandAction Command="{Binding LoadDeviceEntriesCommand1}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
+                        
+                           
                         </Button>
                         <Button Grid.ColumnSpan="3"
                                 Grid.Row="1"
-                                Margin="10" Background="Coral"
+                                Margin="10"
+                                Background="Coral"
                                 Style="{StaticResource ButtonPrimary}"
                                 materialDesign:ButtonAssist.CornerRadius="10"
                                 Content="Tìm kiếm nâng cao">
@@ -142,21 +154,29 @@
                                                         Width="auto"
                                                         Foreground="Yellow"
                                                         Binding="{Binding StatusStr}" />-->
-                                    <DataGridTemplateColumn Header="Tình trạng"  Width="auto">
+                                    <DataGridTemplateColumn Header="Tình trạng"
+                                                            Width="auto">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock  Text="{Binding StatusStr}"
                                                             FontWeight="Bold"
-                                                            Foreground="{Binding ColorStatus}"/>
+                                                            Foreground="{Binding ColorStatus}" />
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
                                     <DataGridTemplateColumn Width="auto">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Button Content="Xóa"
+
+                                              
+
+                                                <Button
+                                                        BorderThickness="0"
+
                                                         Background="red"
                                                         materialDesign:ButtonAssist.CornerRadius="10">
+                                                    <materialDesign:PackIcon Kind="Delete" />
+                                                    
                                                     <i:Interaction.Triggers>
                                                         <i:EventTrigger EventName="Click">
                                                             <prism:InvokeCommandAction Command="{Binding DeleteCommand}" />
@@ -170,9 +190,14 @@
                                     <DataGridTemplateColumn Width="auto">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Button Content="Sửa"
-                                                        Background="Bisque"
+                                                <Button Background="Bisque"
+                                                        BorderThickness="0"
+
+                                                
+                                                      
+
                                                         materialDesign:ButtonAssist.CornerRadius="10">
+                                                    <materialDesign:PackIcon Kind="Pencil" />
                                                     <i:Interaction.Triggers>
                                                         <i:EventTrigger EventName="Click">
                                                             <prism:InvokeCommandAction Command="{Binding SaveCommand}" />
@@ -187,6 +212,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Button  Content="Thông tin thêm"
+                                                         BorderThickness="0"
                                                          Background="PaleVioletRed"
                                                          materialDesign:ButtonAssist.CornerRadius="10">
                                                     <i:Interaction.Triggers>
@@ -363,7 +389,8 @@ materialDesign:ButtonAssist.CornerRadius="10">
 
                     <Button Grid.Column="2"
                             Grid.Row="0"
-                            Margin="10" Background="Orange"
+                            Margin="10"
+                            Background="Orange"
                             Style="{StaticResource ButtonPrimary}"
                             materialDesign:ButtonAssist.CornerRadius="10"
                             Content="Đăng kí thiết bị">
